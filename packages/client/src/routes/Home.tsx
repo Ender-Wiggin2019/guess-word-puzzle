@@ -20,48 +20,76 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="mx-auto max-w-2xl space-y-8">
-        <h1 className="text-4xl font-bold text-center">Starter</h1>
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-2xl px-6 py-16 space-y-12">
+        <header className="text-center space-y-4">
+          <h1 className="text-4xl font-serif font-semibold tracking-tight text-ink-dark">
+            墨韵猜词
+          </h1>
+          <p className="text-cyan text-lg">
+            以字会友，以词传情
+          </p>
+        </header>
         
-        <Card>
+        <Card className="border-none ink-shadow-sm">
           <CardHeader>
-            <CardTitle>Zustand Counter</CardTitle>
+            <CardTitle className="font-serif">状态计数</CardTitle>
           </CardHeader>
-          <CardContent className="flex items-center gap-4">
-            <Button onClick={decrement}>-</Button>
-            <span className="text-2xl font-mono">{count}</span>
-            <Button onClick={increment}>+</Button>
+          <CardContent className="flex items-center justify-center gap-8">
+            <Button variant="outline" onClick={decrement} className="w-10 h-10 p-0">
+              −
+            </Button>
+            <span className="text-3xl font-serif text-ink-dark min-w-[3rem] text-center">
+              {count}
+            </span>
+            <Button onClick={increment} className="w-10 h-10 p-0">
+              +
+            </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-none ink-shadow-sm">
           <CardHeader>
-            <CardTitle>Messages (React Query + API)</CardTitle>
+            <CardTitle className="font-serif">留言板</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="flex gap-2">
+            <form onSubmit={handleSubmit} className="flex gap-3">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type a message..."
+                placeholder="写下你的想法..."
+                className="flex-1"
               />
-              <Button type="submit">Send</Button>
+              <Button type="submit">发送</Button>
             </form>
             
             {isLoading ? (
-              <p>Loading...</p>
+              <p className="text-muted-foreground text-center py-4">加载中...</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {messages?.map((msg) => (
-                  <li key={msg.id} className="p-2 bg-muted rounded">
+                  <li 
+                    key={msg.id} 
+                    className="p-3 bg-muted/50 rounded-sm text-ink-medium"
+                  >
                     {msg.content}
                   </li>
                 ))}
+                {messages?.length === 0 && (
+                  <p className="text-muted-foreground text-center py-4">
+                    暂无留言，来写第一条吧
+                  </p>
+                )}
               </ul>
             )}
           </CardContent>
         </Card>
+
+        <footer className="text-center pt-8">
+          <p className="text-sm text-cyan-light">
+            留白之美，尽在不言中
+          </p>
+        </footer>
       </div>
     </div>
   );
