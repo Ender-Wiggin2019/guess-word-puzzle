@@ -57,6 +57,7 @@ export default function Challenge() {
   const [wrongCount, setWrongCount] = useState<number | null>(null);
   const [wrongKeys, setWrongKeys] = useState<string[]>([]);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [penaltyTime, setPenaltyTime] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [dialogState, setDialogState] = useState<DialogState>({ open: false, type: null });
   const timerRef = useRef<number | null>(null);
@@ -119,9 +120,20 @@ export default function Challenge() {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      const finalTime = elapsedTime + penaltyTime;
+      localStorage.setItem(
+        `challengeResult_${id}`,
+        JSON.stringify({
+          completed: true,
+          time: finalTime,
+          difficulty,
+          completedAt: Date.now(),
+        })
+      );
       setDialogState({ open: true, type: 'success' });
     } else {
       setWrongCount(result.wrongCount);
+      setPenaltyTime((prev) => prev + 10000);
       setDialogState({ open: true, type: 'error', wrongCount: result.wrongCount });
     }
   };
@@ -160,7 +172,7 @@ export default function Challenge() {
         </h1>
         <div className="flex items-center gap-4">
           <div className="text-ink-medium font-mono text-lg">
-            {formatTime(elapsedTime)}
+            {formatTime(elapsedTime + penaltyTime)}
           </div>
           <Button variant="outline" onClick={() => navigate('/challenges')}>
             返回
@@ -212,7 +224,7 @@ export default function Challenge() {
 
       {isCompleted && (
         <div className="mb-4 text-center text-ink-dark font-serif">
-          完成用时: {formatTime(elapsedTime)}
+          完成用时: {formatTime(elapsedTime + penaltyTime)}
         </div>
       )}
 
@@ -234,7 +246,7 @@ export default function Challenge() {
               <DialogHeader>
                 <DialogTitle className="text-center text-cyan">恭喜完成</DialogTitle>
                 <DialogDescription className="text-center text-lg font-serif text-ink-dark pt-2">
-                  用时: {formatTime(elapsedTime)}
+                  用时: {formatTime(elapsedTime + penaltyTime)}
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="sm:justify-center">
