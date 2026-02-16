@@ -12,6 +12,7 @@ async function request<T>(
 
   const res = await fetch(`${BASE_URL}${url}`, {
     ...rest,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...headers,
@@ -21,7 +22,7 @@ async function request<T>(
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(error.message || `HTTP ${res.status}`);
+    throw new Error(error.error || error.message || `HTTP ${res.status}`);
   }
 
   return res.json();

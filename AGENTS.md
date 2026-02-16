@@ -22,8 +22,8 @@ When adding new functionality:
 
 | What | Where |
 |------|-------|
-| TypeScript types | `common/src/index.ts` |
-| Zod validation schemas | `common/src/index.ts` |
+| TypeScript types | `common/src/{domain}.ts` |
+| Zod validation schemas | `common/src/{domain}.ts` |
 | Database table schema | `server/src/db/schema.ts` |
 | API endpoint | `server/src/index.ts` |
 | Service function | `client/src/services/*.ts` |
@@ -97,6 +97,7 @@ export function useCreateExample() {
 - **Always create a service function first** before consuming an API in components or hooks.
 - **Keep services organized** by feature/domain (e.g., `message.ts`, `user.ts`, `auth.ts`).
 - **Use shared types** from the `common` package for request/response types.
+- **Organize common package by domain**: Each domain (e.g., `message`, `user`, `guessGame`) should have its own file in `packages/common/src/`. Export all from `index.ts`.
 
 ## Code Quality
 
