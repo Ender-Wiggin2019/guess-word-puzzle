@@ -1,5 +1,7 @@
 # Starter
 
+[简体中文](./README_CN.md) | English
+
 A full-stack TypeScript monorepo starter template.
 
 ## Tech Stack

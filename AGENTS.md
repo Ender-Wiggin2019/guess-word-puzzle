@@ -1,5 +1,35 @@
 # Agent Guidelines
 
+## Project Architecture
+
+This is a monorepo with three layers. Before implementing any feature, consider which layers need changes:
+
+| Layer | Path | Purpose |
+|-------|------|---------|
+| **common** | `packages/common/` | Shared types, Zod schemas, constants, static config |
+| **server** | `packages/server/` | Backend API, uses Drizzle ORM and Zod for validation |
+| **client** | `packages/client/` | Frontend React application |
+
+### Decision Flow
+
+When adding new functionality:
+
+1. **Is it shareable?** (types, schemas, constants) → Put in `common`
+2. **Is it backend logic?** (API endpoints, database) → Put in `server`
+3. **Is it frontend logic?** (UI, hooks, state) → Put in `client`
+
+### Example: Adding a new feature
+
+| What | Where |
+|------|-------|
+| TypeScript types | `common/src/index.ts` |
+| Zod validation schemas | `common/src/index.ts` |
+| Database table schema | `server/src/db/schema.ts` |
+| API endpoint | `server/src/index.ts` |
+| Service function | `client/src/services/*.ts` |
+| React Query hook | `client/src/hooks/*.ts` |
+| UI component | `client/src/routes/*.tsx` or `client/src/components/*.tsx` |
+
 ## API Request Flow
 
 When adding a new backend endpoint, follow this workflow:

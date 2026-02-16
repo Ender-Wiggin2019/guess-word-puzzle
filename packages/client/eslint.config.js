@@ -17,6 +17,8 @@ export default tseslint.config(
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
         sourceType: 'module',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     settings: { react: { version: '18.3' } },
