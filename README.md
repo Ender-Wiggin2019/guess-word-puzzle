@@ -49,8 +49,11 @@ A full-stack TypeScript monorepo starter template.
 
 ### Prerequisites
 
-- Node.js >= 18
-- pnpm >= 8
+- **Node.js**: >= 20.0.0 (LTS recommended)
+- **pnpm**: >= 9.0.0 (9.15.9 recommended)
+
+> [!TIP]
+> This project uses Corepack. Run `corepack enable` to automatically use the correct pnpm version.
 
 ### Installation
 

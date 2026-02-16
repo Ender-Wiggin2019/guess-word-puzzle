@@ -1,8 +1,14 @@
 {
   "name": "starter",
   "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
-    "dev": "concurrently \"pnpm dev:server\" \"pnpm dev:client\"",
+    "dev": "concurrently \"pnpm dev:common\" \"pnpm dev:server\" \"pnpm dev:client\"",
+    "dev:common": "pnpm --filter common dev",
     "dev:client": "pnpm --filter client dev",
     "dev:server": "pnpm --filter server dev",
     "build": "pnpm --filter common build && pnpm --filter server build && pnpm --filter client build",
@@ -11,6 +17,9 @@
     "db:push": "pnpm --filter server db:push",
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3", "esbuild", "node-gyp"]
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
