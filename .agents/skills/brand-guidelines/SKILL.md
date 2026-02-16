@@ -4,7 +4,7 @@ description: 中文猜词游戏的品牌设计指南。浅色典雅主题，融�
 license: Complete terms in LICENSE.txt
 ---
 
-# 墨韵猜词 - 品牌设计指南
+# 猜字解底 - 品牌设计指南
 
 ## 设计理念
 
@@ -112,8 +112,8 @@ license: Complete terms in LICENSE.txt
 
 /* 晕染效果 */
 .ink-wash {
-  background: radial-gradient(ellipse at center, 
-    rgba(26, 26, 26, 0.02) 0%, 
+  background: radial-gradient(ellipse at center,
+    rgba(26, 26, 26, 0.02) 0%,
     transparent 70%);
 }
 ```
@@ -251,23 +251,23 @@ body::before {
   --ink-light: #666666;
   --gray: #999999;
   --trace: #cccccc;
-  
+
   --paper: #faf8f5;
   --rice-white: #f5f2ed;
   --ivory: #f0ebe3;
   --warm-gray: #e8e4dc;
-  
+
   --cyan: #486e6c;
   --cyan-light: #8eaaa5;
   --green: #4a5d4a;
   --vermilion: #c45c48;
   --indigo: #4a5c6d;
   --gold: #8b7355;
-  
+
   /* 字体 */
   --font-serif: "Noto Serif SC", "Source Han Serif SC", serif;
   --font-sans: "Noto Sans SC", "Source Han Sans SC", sans-serif;
-  
+
   /* 间距 */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -275,12 +275,12 @@ body::before {
   --spacing-lg: 24px;
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
-  
+
   /* 阴影 */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
-  
+
   /* 动画 */
   --ease-brush: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-fast: 150ms;

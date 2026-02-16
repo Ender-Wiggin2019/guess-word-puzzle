@@ -18,9 +18,14 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-paper/90 backdrop-blur-sm border-b border-trace/50">
       <div className="mx-auto max-w-4xl px-6 h-14 flex items-center justify-between">
-        <Link to="/" className="font-serif text-xl text-ink-dark hover:text-cyan transition-colors">
-          墨韵猜词
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link to="/" className="font-serif text-xl text-ink-dark hover:text-cyan transition-colors">
+            猜字解底
+          </Link>
+          <Link to="/challenges" className="text-sm text-ink-medium hover:text-ink-dark transition-colors">
+            挑战
+          </Link>
+        </div>
 
         <div className="flex items-center gap-4">
           {isLoading ? (

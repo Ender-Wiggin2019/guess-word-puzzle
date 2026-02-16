@@ -25,13 +25,13 @@ export default function Home() {
     <div className="mx-auto max-w-2xl px-6 py-12 space-y-10">
       <header className="text-center space-y-3">
         <h1 className="text-3xl font-serif font-semibold tracking-tight text-ink-dark">
-          墨韵猜词
+          猜字解底
         </h1>
         <p className="text-cyan">
           {user ? `欢迎回来，${user.username}` : '以字会友，以词传情'}
         </p>
       </header>
-      
+
       <Card className="border-none ink-shadow-sm">
         <CardHeader>
           <CardTitle className="font-serif">状态计数</CardTitle>
@@ -63,14 +63,14 @@ export default function Home() {
             />
             <Button type="submit">发送</Button>
           </form>
-          
+
           {isLoading ? (
             <p className="text-muted-foreground text-center py-4">加载中...</p>
           ) : (
             <ul className="space-y-3">
               {messages?.map((msg) => (
-                <li 
-                  key={msg.id} 
+                <li
+                  key={msg.id}
                   className="p-3 bg-muted/50 rounded-sm text-ink-medium"
                 >
                   {msg.content}
