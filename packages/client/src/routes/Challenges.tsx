@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { GameRules } from '@/components/GameRules';
 
 interface ChallengeResult {
   completed: boolean;
@@ -131,27 +132,11 @@ export default function Challenges() {
       </div>
 
       <Dialog open={showRules} onOpenChange={setShowRules}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-center">游戏规则</DialogTitle>
+            <DialogTitle className="text-center">单人挑战模式</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 text-ink-medium leading-relaxed">
-            <p>
-              这是一个<span className="text-ink-dark font-medium">猜字游戏</span>
-              ，有一个隐藏的中心字目前不为人知。
-            </p>
-            <p>
-              每位玩家会获得一张<span className="text-ink-dark font-medium">提示卡牌</span>
-              ，上面有一个单字，可以与中心字构成二字短语。
-            </p>
-            <p>
-              玩家需要根据这个单字，构想出<span className="text-ink-dark font-medium">两个额外的词汇</span>
-              ，可以与这个单字组成二字词汇。
-            </p>
-            <p>
-              确定词汇之后，把这两个用于拼词的字展示出来，供其他玩家推测中心字。
-            </p>
-          </div>
+          <GameRules />
           <div className="flex justify-center pt-2">
             <Button variant="outline" onClick={() => setShowRules(false)}>
               我知道了
