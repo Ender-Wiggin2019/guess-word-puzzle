@@ -7,19 +7,19 @@ import { GameRules } from '@/components/GameRules';
 
 interface ChallengeResult {
   completed: boolean;
-  difficulty: Difficulty;
+  difficulty?: Difficulty;
+  score?: number;
 }
 
 function getTotalScore(): number {
-  const scoreMap: Record<Difficulty, number> = { easy: 1, medium: 3, hard: 5 };
   let total = 0;
   OfficialGuessGameCollection.forEach((game) => {
     const saved = localStorage.getItem(`challengeResult_${game.id}`);
     if (saved) {
       try {
         const result: ChallengeResult = JSON.parse(saved);
-        if (result.completed) {
-          total += scoreMap[result.difficulty];
+        if (result.completed && result.score !== undefined) {
+          total += result.score;
         }
       } catch {
         return;

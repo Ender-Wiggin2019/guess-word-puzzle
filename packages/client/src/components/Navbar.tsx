@@ -25,6 +25,12 @@ export function Navbar() {
           <Link to="/challenges" className="text-sm text-ink-medium hover:text-ink-dark transition-colors">
             挑战
           </Link>
+          <Link to="/leaderboard" className="text-sm text-ink-medium hover:text-ink-dark transition-colors">
+            排行榜
+          </Link>
+          <Link to="/rules" className="text-sm text-ink-medium hover:text-ink-dark transition-colors">
+            规则
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">

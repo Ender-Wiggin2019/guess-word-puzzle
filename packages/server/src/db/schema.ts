@@ -18,3 +18,13 @@ export const sessions = sqliteTable('sessions', {
   userId: integer('user_id').notNull().references(() => users.id),
   expiresAt: text('expires_at').notNull(),
 });
+
+export const challengeResults = sqliteTable('challenge_results', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  challengeId: text('challenge_id').notNull(),
+  score: integer('score').notNull(),
+  time: integer('time').notNull(),
+  difficulty: text('difficulty', { enum: ['easy', 'medium', 'hard'] }).notNull(),
+  completedAt: text('completed_at').notNull().$defaultFn(() => new Date().toISOString()),
+});

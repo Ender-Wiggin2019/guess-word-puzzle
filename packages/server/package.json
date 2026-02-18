@@ -4,33 +4,29 @@
   "type": "module",
   "main": "./dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "wrangler dev",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "deploy": "wrangler deploy",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
+    "db:migrate": "wrangler d1 migrations apply guess-word-puzzle-db",
+    "db:migrate:local": "wrangler d1 migrations apply guess-word-puzzle-db --local",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.9",
-    "bcrypt": "^6.0.0",
-    "better-sqlite3": "^11.8.1",
     "common": "workspace:*",
     "drizzle-orm": "^0.39.3",
     "hono": "^4.11.9"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
     "@eslint/js": "^9.39.2",
-    "@types/bcrypt": "^6.0.0",
-    "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.12.0",
     "drizzle-kit": "^0.30.4",
     "eslint": "^9.39.2",
     "globals": "^17.3.0",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.55.0"
+    "typescript-eslint": "^8.55.0",
+    "wrangler": "^4.66.0"
   }
 }

@@ -2,14 +2,18 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   OfficialGuessGameCollection,
+  AIGuessGameCollection,
   Difficulty,
   defaultPlayerOption,
   getChallengeDisplayItems,
   validateAnswers,
   formatTime,
+  calculateScore,
   ChallengeDisplayItem,
   PlayerOption,
 } from 'common';
+import { useSubmitChallengeResult } from '@/hooks/useChallenge';
+import { useUser } from '@/hooks/useAuth';
 import { CharItem } from '@/components/CharItem';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,8 +28,9 @@ import {
 
 type DialogState = {
   open: boolean;
-  type: 'success' | 'error' | 'incomplete' | null;
+  type: 'success' | 'error' | 'incomplete' | 'completed' | null;
   wrongCount?: number;
+  finalScore?: number;
 };
 
 function loadSavedPlayerOption(id: string | undefined): PlayerOption {
@@ -42,12 +47,30 @@ function loadSavedPlayerOption(id: string | undefined): PlayerOption {
   return defaultPlayerOption;
 }
 
+function loadChallengeResult(id: string | undefined): { completed: boolean; time: number; score?: number } | null {
+  if (!id) return null;
+  const saved = localStorage.getItem(`challengeResult_${id}`);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export default function Challenge() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { data: user } = useUser();
+  const submitResult = useSubmitChallengeResult();
 
   const difficulty = (searchParams.get('difficulty') as Difficulty) || 'easy';
+  const existingResult = loadChallengeResult(id);
+  const isAlreadyCompleted = existingResult?.completed ?? false;
+  const savedTime = existingResult?.time || 0;
 
   const playerOption = useMemo(() => loadSavedPlayerOption(id), [id]);
   const [formData, setFormData] = useState<Record<string, string>>(() => {
@@ -56,15 +79,19 @@ export default function Challenge() {
   });
   const [wrongCount, setWrongCount] = useState<number | null>(null);
   const [wrongKeys, setWrongKeys] = useState<string[]>([]);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(savedTime);
   const [penaltyTime, setPenaltyTime] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(isAlreadyCompleted);
   const [dialogState, setDialogState] = useState<DialogState>({ open: false, type: null });
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
 
   const game = useMemo(() => {
-    return OfficialGuessGameCollection.find((g) => g.id === id);
+    let found = OfficialGuessGameCollection.find((g) => g.id === id);
+    if (!found) {
+      found = AIGuessGameCollection.find((g) => g.id === id);
+    }
+    return found;
   }, [id]);
 
   const displayData = useMemo(() => {
@@ -116,26 +143,46 @@ export default function Challenge() {
     }
 
     if (result.isCorrect) {
-      setIsCompleted(true);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      const finalTime = elapsedTime + penaltyTime;
-      localStorage.setItem(
-        `challengeResult_${id}`,
-        JSON.stringify({
-          completed: true,
-          time: finalTime,
-          difficulty,
-          completedAt: Date.now(),
-        })
-      );
-      setDialogState({ open: true, type: 'success' });
+      completeChallenge();
     } else {
       setWrongCount(result.wrongCount);
       setPenaltyTime((prev) => prev + 10000);
       setDialogState({ open: true, type: 'error', wrongCount: result.wrongCount });
     }
+  };
+
+  const handleForceSubmit = () => {
+    completeChallenge();
+  };
+
+  const completeChallenge = () => {
+    if (!displayData || !id) return;
+
+    setIsCompleted(true);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    const finalTime = elapsedTime + penaltyTime;
+    const finalScore = calculateScore(displayData, formData);
+
+    localStorage.setItem(
+      `challengeResult_${id}`,
+      JSON.stringify({
+        completed: true,
+        time: finalTime,
+        score: finalScore,
+        completedAt: Date.now(),
+      })
+    );
+    if (user && id) {
+      submitResult.mutate({
+        challengeId: id,
+        time: finalTime,
+        score: finalScore,
+        difficulty,
+      });
+    }
+    setDialogState({ open: true, type: 'success', finalScore });
   };
 
   const closeDialog = () => {
@@ -185,13 +232,29 @@ export default function Challenge() {
           <CardTitle className="font-serif text-ink-dark text-lg">中心词</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-center">
-            <CharItem
-              readonly={false}
-              value={formData[displayData.centerInputKey] || ''}
-              onChange={(val) => handleFieldChange(displayData.centerInputKey, val)}
-              borderColor={wrongKeys.includes(displayData.centerInputKey) ? 'rgb(196 92 72)' : 'rgb(56 142 142)'}
-            />
+          <div className="flex justify-center items-center gap-4">
+            {isCompleted ? (
+              <>
+                <CharItem
+                  readonly
+                  char={formData[displayData.centerInputKey] || ''}
+                  borderColor="rgb(56 142 142)"
+                />
+                <span className="text-ink-light text-sm">正确答案:</span>
+                <CharItem
+                  readonly
+                  char={displayData.centerAnswer}
+                  borderColor="rgb(76 135 76)"
+                />
+              </>
+            ) : (
+              <CharItem
+                readonly={false}
+                value={formData[displayData.centerInputKey] || ''}
+                onChange={(val) => handleFieldChange(displayData.centerInputKey, val)}
+                borderColor={wrongKeys.includes(displayData.centerInputKey) ? 'rgb(196 92 72)' : 'rgb(56 142 142)'}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -210,6 +273,7 @@ export default function Challenge() {
                 onChange={handleFieldChange}
                 isWrong={wrongKeys.includes(item.inputKey)}
                 rowIndex={index}
+                isCompleted={isCompleted}
               />
             ))}
           </div>
@@ -228,15 +292,34 @@ export default function Challenge() {
         </div>
       )}
 
-      <div className="flex justify-center">
-        <Button
-          size="lg"
-          onClick={handleSubmit}
-          className="px-8"
-          disabled={isCompleted}
-        >
-          提交答案
-        </Button>
+      <div className="flex justify-center gap-4">
+        {isCompleted ? (
+          <>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate('/challenges')}
+              className="px-8"
+            >
+              返回列表
+            </Button>
+            <Button
+              size="lg"
+              onClick={() => navigate(`/leaderboard/${id}`)}
+              className="px-8"
+            >
+              查看排行榜
+            </Button>
+          </>
+        ) : (
+          <Button
+            size="lg"
+            onClick={handleSubmit}
+            className="px-8"
+          >
+            提交答案
+          </Button>
+        )}
       </div>
 
       <Dialog open={dialogState.open} onOpenChange={(open) => !open && closeDialog()}>
@@ -244,13 +327,17 @@ export default function Challenge() {
           {dialogState.type === 'success' && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-center text-cyan">恭喜完成</DialogTitle>
+                <DialogTitle className="text-center text-cyan">挑战完成</DialogTitle>
                 <DialogDescription className="text-center text-lg font-serif text-ink-dark pt-2">
-                  用时: {formatTime(elapsedTime + penaltyTime)}
+                  <div>得分: <span className="text-green font-semibold">{dialogState.finalScore}</span> 分</div>
+                  <div className="mt-1">用时: {formatTime(elapsedTime + penaltyTime)}</div>
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter className="sm:justify-center">
-                <Button onClick={() => navigate('/challenges')}>返回列表</Button>
+              <DialogFooter className="sm:justify-center gap-2">
+                <Button variant="outline" onClick={() => navigate('/challenges')}>返回列表</Button>
+                {id && (
+                  <Button onClick={() => navigate(`/leaderboard/${id}`)}>查看排行榜</Button>
+                )}
               </DialogFooter>
             </>
           )}
@@ -262,8 +349,9 @@ export default function Challenge() {
                   有 {dialogState.wrongCount} 个答案不正确，请检查标红的格子
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter className="sm:justify-center">
+              <DialogFooter className="sm:justify-center gap-2">
                 <Button variant="outline" onClick={closeDialog}>继续答题</Button>
+                <Button onClick={handleForceSubmit}>强制提交</Button>
               </DialogFooter>
             </>
           )}
@@ -277,6 +365,22 @@ export default function Challenge() {
               </DialogHeader>
               <DialogFooter className="sm:justify-center">
                 <Button variant="outline" onClick={closeDialog}>继续答题</Button>
+              </DialogFooter>
+            </>
+          )}
+          {dialogState.type === 'completed' && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-center text-green">已完成</DialogTitle>
+                <DialogDescription className="text-center text-lg font-serif text-ink-dark pt-2">
+                  <div>得分: <span className="text-green font-semibold">{dialogState.finalScore}</span> 分</div>
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="sm:justify-center gap-2">
+                <Button variant="outline" onClick={() => navigate('/challenges')}>返回列表</Button>
+                {id && (
+                  <Button onClick={() => navigate(`/leaderboard/${id}`)}>查看排行榜</Button>
+                )}
               </DialogFooter>
             </>
           )}
@@ -299,9 +403,10 @@ interface ChallengeRowProps {
   onChange: (key: string, value: string) => void;
   isWrong: boolean;
   rowIndex: number;
+  isCompleted: boolean;
 }
 
-function ChallengeRow({ item, value, onChange, isWrong, rowIndex }: ChallengeRowProps) {
+function ChallengeRow({ item, value, onChange, isWrong, rowIndex, isCompleted }: ChallengeRowProps) {
   const rowColor = guohuaColors[rowIndex % guohuaColors.length];
 
   if (!item.needsInput) {
@@ -320,12 +425,20 @@ function ChallengeRow({ item, value, onChange, isWrong, rowIndex }: ChallengeRow
         <CharItem key={index} readonly char={char} borderColor={rowColor} />
       ))}
       <div className="flex items-center justify-center w-6 text-ink-medium">|</div>
-      <CharItem
-        readonly={false}
-        value={value}
-        onChange={(val) => onChange(item.inputKey, val)}
-        borderColor={isWrong ? 'rgb(196 92 72)' : rowColor}
-      />
+      {isCompleted ? (
+        <div className="flex items-center gap-2">
+          <CharItem readonly char={value} borderColor={rowColor} />
+          <span className="text-ink-light text-sm">正确答案:</span>
+          <CharItem readonly char={item.correctAnswer} borderColor="rgb(76 135 76)" />
+        </div>
+      ) : (
+        <CharItem
+          readonly={false}
+          value={value}
+          onChange={(val) => onChange(item.inputKey, val)}
+          borderColor={isWrong ? 'rgb(196 92 72)' : rowColor}
+        />
+      )}
     </div>
   );
 }

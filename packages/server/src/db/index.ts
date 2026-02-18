@@ -1,6 +1,17 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/d1';
 import * as schema from './schema';
 
-const sqlite = new Database('data.db');
-export const db = drizzle(sqlite, { schema });
+export function getDb(d1: D1Database) {
+  return drizzle(d1, { schema });
+}
+
+export type AppEnv = {
+  Bindings: {
+    DB: D1Database;
+    ENV: 'development' | 'production';
+    ALLOWED_ORIGINS: string;
+  };
+  Variables: {
+    db: ReturnType<typeof getDb>;
+  };
+};

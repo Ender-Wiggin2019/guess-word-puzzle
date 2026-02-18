@@ -593,3 +593,83 @@ export function formatTime(milliseconds: number): string {
   }
   return `${remainingSeconds}.${remainingMs.toString().padStart(2, '0')}s`;
 }
+
+const DAILY_CHALLENGE_START_DATE = new Date('2026-02-18');
+
+export function getDailyChallengeIndex(date: Date = new Date()): number {
+  const diffTime = date.getTime() - DAILY_CHALLENGE_START_DATE.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+}
+
+export function getDailyChallenge(
+  collection: GuessGameItem[],
+  date: Date = new Date()
+): GuessGameItem | null {
+  const index = getDailyChallengeIndex(date);
+  if (index >= 0 && index < collection.length) {
+    return collection[index];
+  }
+  return null;
+}
+
+export interface ChallengeResult {
+  id: number;
+  userId: number;
+  username: string;
+  challengeId: string;
+  score: number;
+  time: number;
+  difficulty: Difficulty;
+  completedAt: string;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: number;
+  username: string;
+  score: number;
+  time: number;
+  difficulty: Difficulty;
+  completedAt: string;
+}
+
+export interface TotalLeaderboardEntry {
+  rank: number;
+  userId: number;
+  username: string;
+  totalScore: number;
+  completedChallenges: number;
+}
+
+export interface MyChallengeResult {
+  challengeId: string;
+  score: number;
+  time: number;
+  completedAt: string;
+}
+
+export const CENTER_CHAR_SCORE = 3;
+export const PLAYER_WORD_SCORE = 1;
+
+export function calculateScore(
+  displayData: ChallengeDisplayData,
+  answers: Record<string, string>
+): number {
+  let score = 0;
+
+  const centerAnswer = answers[displayData.centerInputKey];
+  if (centerAnswer && centerAnswer === displayData.centerAnswer) {
+    score += CENTER_CHAR_SCORE;
+  }
+
+  for (const item of displayData.items) {
+    if (!item.needsInput) continue;
+    const answer = answers[item.inputKey];
+    if (answer && answer === item.correctAnswer) {
+      score += PLAYER_WORD_SCORE;
+    }
+  }
+
+  return score;
+}
