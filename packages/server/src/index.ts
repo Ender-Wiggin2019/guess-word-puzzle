@@ -10,8 +10,13 @@ import { hashPassword, verifyPassword, generateSessionId } from './crypto';
 const app = new Hono<AppEnv>();
 
 app.use('*', cors({
-  origin: (origin) => {
-    const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+  origin: (origin, c) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+    ];
+    if (c.env.FRONTEND_URL) allowedOrigins.push(c.env.FRONTEND_URL);
+    if (origin && origin.endsWith('.ender-wiggin.com')) return origin;
     return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
   },
   credentials: true,

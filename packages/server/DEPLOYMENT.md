@@ -63,6 +63,7 @@ cd packages/client && pnpm dev
 ### 1. 登录 Cloudflare
 
 ```bash
+# 如果有代理问题，先运行：unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
 npx wrangler login
 ```
 
@@ -71,6 +72,7 @@ npx wrangler login
 ### 2. 创建 D1 数据库
 
 ```bash
+cd packages/server
 npx wrangler d1 create guess-word-puzzle-db
 ```
 
@@ -97,7 +99,10 @@ migrations_dir = "drizzle"
 
 ### 4. 应用迁移到生产数据库
 
+> **注意**：所有 wrangler 命令必须在 `packages/server` 目录下运行，否则会找不到 wrangler.toml 配置。
+
 ```bash
+cd packages/server
 npx wrangler d1 migrations apply guess-word-puzzle-db --remote
 ```
 

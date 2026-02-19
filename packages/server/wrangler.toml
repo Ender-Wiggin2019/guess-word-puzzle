@@ -9,5 +9,5 @@ local_protocol = "http"
 [[d1_databases]]
 binding = "DB"
 database_name = "guess-word-puzzle-db"
-database_id = "local-dev"
+database_id = "ec363f65-0938-4725-a336-98b863ddcae1"
 migrations_dir = "drizzle"
